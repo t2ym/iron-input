@@ -164,6 +164,8 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
       listeners: {
         'input': '_onInput',
+        'compositionstart': '_onCompositionstart',
+        'compositionend': '_onCompositionend',
         'keypress': '_onKeypress'
       },
 
@@ -283,6 +285,9 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       },
 
       _onInput: function() {
+        if (this.__composing) {
+          return; // Skip validation during composition
+        }
         // Need to validate each of the characters pasted if they haven't
         // been validated inside `_onKeypress` already.
         if (this.allowedPattern && !this._patternAlreadyChecked) {
@@ -295,6 +300,14 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
         this.bindValue = this._previousValidInput = this.inputElement.value;
         this._patternAlreadyChecked = false;
+      },
+
+      _onCompositionstart: function() {
+        this.__composing = true;
+      },
+
+      _onCompositionend: function() {
+        this.__composing = false;
       },
 
       _isPrintable: function(event) {
